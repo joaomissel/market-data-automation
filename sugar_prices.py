@@ -139,6 +139,15 @@ print("==============================\n")
 
 print(df.to_string(index=False))
 
+
+# =========================
+# EXPORTAR PARA CSV
+# =========================
+
+df.to_csv("sugar_prices.csv", index=False)
+
+print("\nArquivo sugar_prices.csv criado com sucesso.")
+
 print("\n==============================")
 print("Processo concluído.")
 print("==============================")
