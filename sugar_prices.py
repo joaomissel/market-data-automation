@@ -20,6 +20,8 @@ headers = {
 
 agora_ny = datetime.now(ZoneInfo("America/New_York"))
 
+data_atual = agora_ny.strftime("%Y-%m-%d")
+
 print(
     "Horário de New York:",
     agora_ny.strftime("%Y-%m-%d %H:%M:%S %Z")
@@ -104,8 +106,19 @@ for contrato in contratos:
     if dados is not None:
 
         resultado.append({
+            "Data": data_atual,
             "Contrato": contrato,
-            **dados
+            "Previous Close": dados.get("previousClose"),
+            "Previous Open": dados.get("previousOpen"),
+            "Previous High": dados.get("previousHigh"),
+            "Previous Low": dados.get("previousLow"),
+            "Weekly Previous Close": dados.get("weeklyPreviousClose"),
+            "Weekly Previous High": dados.get("weeklyPreviousHigh"),
+            "Weekly Previous Low": dados.get("weeklyPreviousLow"),
+            "Monthly Previous Close": dados.get("monthlyPreviousClose"),
+            "Monthly Previous High": dados.get("monthlyPreviousHigh"),
+            "Monthly Previous Low": dados.get("monthlyPreviousLow"),
+            "Trade Time": dados.get("tradeTime")
         })
 
 
@@ -116,16 +129,15 @@ for contrato in contratos:
 df = pd.DataFrame(resultado)
 
 
+# =========================
+# RESULTADO
+# =========================
+
 print("\n==============================")
-print("RESULTADO FINAL")
+print("DATAFRAME PARA O EXCEL")
 print("==============================\n")
 
-print(df)
-
-
-# =========================
-# FINALIZAÇÃO
-# =========================
+print(df.to_string(index=False))
 
 print("\n==============================")
 print("Processo concluído.")
