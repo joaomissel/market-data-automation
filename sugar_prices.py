@@ -1,10 +1,19 @@
 import requests
 import json
 import pandas as pd
+from datetime import datetime
+from zoneinfo import ZoneInfo
 
 headers = {
     "User-Agent": "Mozilla/5.0"
 }
+
+agora_ny = datetime.now(ZoneInfo("America/New_York"))
+
+print(
+    "Horário de New York:",
+    agora_ny.strftime("%Y-%m-%d %H:%M:%S %Z")
+)
 
 
 def obter_previous(contrato):
@@ -26,31 +35,3 @@ def obter_previous(contrato):
 
     except:
         return None
-
-
-contratos = [
-    "SBV26",
-    "SBH27",
-    "SBK27",
-    "SBN27",
-    "SBV27"
-]
-
-
-resultado = []
-
-for contrato in contratos:
-
-    dados = obter_previous(contrato)
-
-    if dados is not None:
-
-        resultado.append({
-            "Contrato": contrato,
-            **dados
-        })
-
-
-df = pd.DataFrame(resultado)
-
-print(df)
