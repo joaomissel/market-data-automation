@@ -32,10 +32,6 @@ jobs:
         run: |
           python sugar_prices.py
 
-      - name: Executar PTAX
-        run: |
-          python ptax.py
-
       - name: Salvar CSV no GitHub
         run: |
           git config user.name "github-actions[bot]"
