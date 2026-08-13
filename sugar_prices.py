@@ -82,6 +82,7 @@ def obter_previous(contrato):
 # =========================
 
 contratos = [
+
     "SBV26",
 
     "SBH27",
@@ -102,7 +103,7 @@ contratos = [
     "SBH30",
     "SBK30",
     "SBN30",
-    "SBV30"
+    "SBV30",
 
     "SBH31",
     "SBK31",
@@ -128,20 +129,41 @@ for contrato in contratos:
     if dados is not None:
 
         resultado.append({
+
             "Data": data_atual,
+
             "Contrato": contrato,
+
             "Previous Close": dados.get("previousClose"),
+
             "Previous Open": dados.get("previousOpen"),
+
             "Previous High": dados.get("previousHigh"),
+
             "Previous Low": dados.get("previousLow"),
+
             "Weekly Previous Close": dados.get("weeklyPreviousClose"),
+
             "Weekly Previous High": dados.get("weeklyPreviousHigh"),
+
             "Weekly Previous Low": dados.get("weeklyPreviousLow"),
+
             "Monthly Previous Close": dados.get("monthlyPreviousClose"),
+
             "Monthly Previous High": dados.get("monthlyPreviousHigh"),
+
             "Monthly Previous Low": dados.get("monthlyPreviousLow"),
+
             "Trade Time": dados.get("tradeTime")
+
         })
+
+
+# =========================
+# DATAFRAME
+# =========================
+
+df = pd.DataFrame(resultado)
 
 
 # =========================
@@ -161,7 +183,9 @@ print(df.to_string(index=False))
 
 arquivo_historico = "sugar_prices_history.csv"
 
+
 try:
+
     historico = pd.read_csv(arquivo_historico)
 
     historico = pd.concat(
@@ -170,25 +194,32 @@ try:
     )
 
 except FileNotFoundError:
+
     historico = df.copy()
 
 
-# Remover duplicidades
+# =========================
+# REMOVER DUPLICIDADES
+# =========================
 
 historico = historico.drop_duplicates(
-    subset=["Contrato", "tradeTime"],
+    subset=["Data", "Contrato"],
     keep="last"
 )
 
 
-# Ordenar histórico
+# =========================
+# ORDENAR HISTÓRICO
+# =========================
 
 historico = historico.sort_values(
-    by=["tradeTime", "Contrato"]
+    by=["Data", "Contrato"]
 )
 
 
-# Salvar histórico
+# =========================
+# SALVAR HISTÓRICO
+# =========================
 
 historico.to_csv(
     arquivo_historico,
@@ -199,12 +230,20 @@ print("\nHistórico atualizado com sucesso.")
 
 
 # =========================
-# EXPORTAR PARA CSV
+# EXPORTAR COTAÇÃO ATUAL
 # =========================
 
-df.to_csv("sugar_prices.csv", index=False)
+df.to_csv(
+    "sugar_prices.csv",
+    index=False
+)
 
 print("\nArquivo sugar_prices.csv criado com sucesso.")
+
+
+# =========================
+# FINAL
+# =========================
 
 print("\n==============================")
 print("Processo concluído.")
