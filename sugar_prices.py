@@ -183,7 +183,6 @@ print(df.to_string(index=False))
 
 arquivo_historico = "sugar_history.csv"
 
-
 try:
 
     historico = pd.read_csv(arquivo_historico)
@@ -195,7 +194,7 @@ try:
 
 except (FileNotFoundError, pd.errors.EmptyDataError):
 
-    historico = df.copy
+    historico = df.copy()
 
 
 # =========================
@@ -227,7 +226,6 @@ historico.to_csv(
 )
 
 print("\nHistórico atualizado com sucesso.")
-
 
 # =========================
 # EXPORTAR COTAÇÃO ATUAL
