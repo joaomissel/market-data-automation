@@ -37,7 +37,7 @@ jobs:
           git config user.name "github-actions[bot]"
           git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
 
-          git add sugar_prices.csv ptax.csv
+          git add sugar_prices.csv sugar_history.csv
 
           git commit -m "Atualizar dados de mercado" || echo "Nenhuma alteração"
 
