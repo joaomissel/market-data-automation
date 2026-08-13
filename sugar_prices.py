@@ -145,13 +145,6 @@ for contrato in contratos:
 
 
 # =========================
-# DATAFRAME
-# =========================
-
-df = pd.DataFrame(resultado)
-
-
-# =========================
 # RESULTADO
 # =========================
 
@@ -160,6 +153,49 @@ print("DATAFRAME PARA O EXCEL")
 print("==============================\n")
 
 print(df.to_string(index=False))
+
+
+# =========================
+# HISTÓRICO
+# =========================
+
+arquivo_historico = "sugar_prices_history.csv"
+
+try:
+    historico = pd.read_csv(arquivo_historico)
+
+    historico = pd.concat(
+        [historico, df],
+        ignore_index=True
+    )
+
+except FileNotFoundError:
+    historico = df.copy()
+
+
+# Remover duplicidades
+
+historico = historico.drop_duplicates(
+    subset=["Contrato", "tradeTime"],
+    keep="last"
+)
+
+
+# Ordenar histórico
+
+historico = historico.sort_values(
+    by=["tradeTime", "Contrato"]
+)
+
+
+# Salvar histórico
+
+historico.to_csv(
+    arquivo_historico,
+    index=False
+)
+
+print("\nHistórico atualizado com sucesso.")
 
 
 # =========================
