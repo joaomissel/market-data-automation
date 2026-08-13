@@ -181,7 +181,7 @@ print(df.to_string(index=False))
 # HISTÓRICO
 # =========================
 
-arquivo_historico = "sugar_prices_history.csv"
+arquivo_historico = "sugar_history.csv"
 
 
 try:
@@ -193,9 +193,9 @@ try:
         ignore_index=True
     )
 
-except FileNotFoundError:
+except (FileNotFoundError, pd.errors.EmptyDataError):
 
-    historico = df.copy()
+    historico = df.copy
 
 
 # =========================
