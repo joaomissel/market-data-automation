@@ -86,7 +86,16 @@ contratos = [
     "SBH27",
     "SBK27",
     "SBN27",
-    "SBV27"
+    "SBV27";
+    "SBH28",
+    "SBK28",
+    "SBN28",
+    "SBV28";
+    "SBH29",
+    "SBK29",
+    "SBN29",
+    "SBV29"    
+    
 ]
 
 
