@@ -43,12 +43,13 @@ print("Status API:", response.status_code)
 
 
 # =========================
-# TRATAMENTO DOS DADOS
+# DADOS
 # =========================
 
 dados = response.json()
 
 cotacoes = dados["value"]
+
 
 if len(cotacoes) == 0:
 
@@ -80,7 +81,65 @@ else:
 
 
     # =========================
-    # EXPORTAR CSV
+    # HISTÓRICO
+    # =========================
+
+    arquivo_historico = "ptax_history.csv"
+
+    try:
+
+        historico = pd.read_csv(
+            arquivo_historico
+        )
+
+        historico = pd.concat(
+            [historico, df],
+            ignore_index=True
+        )
+
+    except (
+        FileNotFoundError,
+        pd.errors.EmptyDataError
+    ):
+
+        historico = df.copy()
+
+
+    # =========================
+    # REMOVER DUPLICIDADES
+    # =========================
+
+    historico = historico.drop_duplicates(
+        subset=["Data"],
+        keep="last"
+    )
+
+
+    # =========================
+    # ORDENAR HISTÓRICO
+    # =========================
+
+    historico = historico.sort_values(
+        by=["Data"]
+    )
+
+
+    # =========================
+    # SALVAR HISTÓRICO
+    # =========================
+
+    historico.to_csv(
+        arquivo_historico,
+        index=False
+    )
+
+    print(
+        "\nHistórico PTAX atualizado com sucesso."
+    )
+
+
+    # =========================
+    # EXPORTAR COTAÇÃO ATUAL
     # =========================
 
     df.to_csv(
@@ -88,4 +147,15 @@ else:
         index=False
     )
 
-    print("\nArquivo ptax.csv criado com sucesso.")
+    print(
+        "\nArquivo ptax.csv criado com sucesso."
+    )
+
+
+    # =========================
+    # FINAL
+    # =========================
+
+    print("\n==============================")
+    print("Processo concluído.")
+    print("==============================")
