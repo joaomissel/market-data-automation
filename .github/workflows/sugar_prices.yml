@@ -32,6 +32,11 @@ jobs:
         run: |
           python sugar_prices.py
 
+      - name: TESTE DE NOTIFICAÇÃO
+        run: |
+          echo "Teste de falha proposital"
+          exit 1
+          
       - name: Salvar CSV no GitHub
         run: |
           git config user.name "github-actions[bot]"
