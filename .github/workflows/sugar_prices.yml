@@ -31,11 +31,6 @@ jobs:
       - name: Executar scraper
         run: |
           python sugar_prices.py
-
-      - name: TESTE DE NOTIFICAÇÃO
-        run: |
-          echo "Teste de falha proposital"
-          exit 1
           
       - name: Salvar CSV no GitHub
         run: |
