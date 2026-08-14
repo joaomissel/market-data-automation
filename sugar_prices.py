@@ -38,22 +38,81 @@ def obter_previous(contrato):
 
     print(f"Buscando {contrato}...")
 
-    r = requests.get(
-        url,
-        headers=headers,
-        timeout=15
-    )
+    try:
+
+        r = requests.get(
+            url,
+            headers=headers,
+            timeout=15
+        )
+
+    except requests.RequestException as erro:
+
+        print(
+            f"Erro de conexão ao buscar {contrato}: {erro}"
+        )
+
+        return None
 
     print(f"Status {contrato}: {r.status_code}")
+
+    # =========================
+    # CONTRATO NÃO DISPONÍVEL
+    # =========================
+
+    if r.status_code == 404:
+
+        print(
+            f"{contrato} não está disponível no Barchart."
+        )
+
+        return None
+
+    # =========================
+    # ERRO DO SERVIDOR
+    # =========================
+
+    if r.status_code >= 500:
+
+        print(
+            f"Erro do servidor Barchart para {contrato}: "
+            f"{r.status_code}"
+        )
+
+        return None
+
+    # =========================
+    # OUTROS STATUS HTTP
+    # =========================
+
+    if r.status_code != 200:
+
+        print(
+            f"Status inesperado para {contrato}: "
+            f"{r.status_code}"
+        )
+
+        return None
+
+    # =========================
+    # LOCALIZAR JSON
+    # =========================
 
     inicio = r.text.find(f'{{"{contrato}"')
     fim = r.text.find("</script>", inicio)
 
     if inicio == -1 or fim == -1:
 
-        print(f"Não foi possível encontrar os dados de {contrato}")
+        print(
+            f"Não foi possível encontrar os dados de "
+            f"{contrato}"
+        )
 
         return None
+
+    # =========================
+    # PROCESSAR JSON
+    # =========================
 
     try:
 
@@ -65,14 +124,17 @@ def obter_previous(contrato):
 
         print(
             f"{contrato} encontrado - "
-            f"Previous Close: {quote.get('previousClose')}"
+            f"Previous Close: "
+            f"{quote.get('previousClose')}"
         )
 
         return quote
 
     except Exception as erro:
 
-        print(f"Erro ao processar {contrato}: {erro}")
+        print(
+            f"Erro ao processar {contrato}: {erro}"
+        )
 
         return None
 
@@ -134,29 +196,83 @@ for contrato in contratos:
 
             "Contrato": contrato,
 
-            "Previous Close": dados.get("previousClose"),
+            "Previous Close":
+                dados.get("previousClose"),
 
-            "Previous Open": dados.get("previousOpen"),
+            "Previous Open":
+                dados.get("previousOpen"),
 
-            "Previous High": dados.get("previousHigh"),
+            "Previous High":
+                dados.get("previousHigh"),
 
-            "Previous Low": dados.get("previousLow"),
+            "Previous Low":
+                dados.get("previousLow"),
 
-            "Weekly Previous Close": dados.get("weeklyPreviousClose"),
+            "Weekly Previous Close":
+                dados.get("weeklyPreviousClose"),
 
-            "Weekly Previous High": dados.get("weeklyPreviousHigh"),
+            "Weekly Previous High":
+                dados.get("weeklyPreviousHigh"),
 
-            "Weekly Previous Low": dados.get("weeklyPreviousLow"),
+            "Weekly Previous Low":
+                dados.get("weeklyPreviousLow"),
 
-            "Monthly Previous Close": dados.get("monthlyPreviousClose"),
+            "Monthly Previous Close":
+                dados.get("monthlyPreviousClose"),
 
-            "Monthly Previous High": dados.get("monthlyPreviousHigh"),
+            "Monthly Previous High":
+                dados.get("monthlyPreviousHigh"),
 
-            "Monthly Previous Low": dados.get("monthlyPreviousLow"),
+            "Monthly Previous Low":
+                dados.get("monthlyPreviousLow"),
 
-            "Trade Time": dados.get("tradeTime")
+            "Trade Time":
+                dados.get("tradeTime")
 
         })
+
+
+# =========================
+# VALIDAÇÃO DA COLETA
+# =========================
+
+print("\n==============================")
+print("VALIDAÇÃO DA COLETA")
+print("==============================")
+
+print(
+    f"\nContratos configurados: "
+    f"{len(contratos)}"
+)
+
+print(
+    f"Contratos coletados: "
+    f"{len(resultado)}"
+)
+
+
+if len(resultado) == 0:
+
+    print(
+        "\nERRO: nenhum contrato foi coletado."
+    )
+
+    print(
+        "Possível indisponibilidade do "
+        "Barchart ou falha no GET."
+    )
+
+    raise RuntimeError(
+        "Nenhum contrato foi coletado. "
+        "Possível indisponibilidade do Barchart "
+        "ou falha no GET."
+    )
+
+
+print(
+    "\nColeta válida. "
+    "Pelo menos um contrato foi encontrado."
+)
 
 
 # =========================
@@ -174,7 +290,9 @@ print("\n==============================")
 print("DATAFRAME PARA O EXCEL")
 print("==============================\n")
 
-print(df.to_string(index=False))
+print(
+    df.to_string(index=False)
+)
 
 
 # =========================
@@ -183,16 +301,22 @@ print(df.to_string(index=False))
 
 arquivo_historico = "sugar_history.csv"
 
+
 try:
 
-    historico = pd.read_csv(arquivo_historico)
+    historico = pd.read_csv(
+        arquivo_historico
+    )
 
     historico = pd.concat(
         [historico, df],
         ignore_index=True
     )
 
-except (FileNotFoundError, pd.errors.EmptyDataError):
+except (
+    FileNotFoundError,
+    pd.errors.EmptyDataError
+):
 
     historico = df.copy()
 
@@ -225,7 +349,10 @@ historico.to_csv(
     index=False
 )
 
-print("\nHistórico atualizado com sucesso.")
+print(
+    "\nHistórico atualizado com sucesso."
+)
+
 
 # =========================
 # EXPORTAR COTAÇÃO ATUAL
@@ -236,7 +363,10 @@ df.to_csv(
     index=False
 )
 
-print("\nArquivo sugar_prices.csv criado com sucesso.")
+print(
+    "\nArquivo sugar_prices.csv "
+    "criado com sucesso."
+)
 
 
 # =========================
