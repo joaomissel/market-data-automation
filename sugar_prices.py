@@ -1,7 +1,6 @@
 import requests
 import json
 import pandas as pd
-import time
 from datetime import datetime
 from zoneinfo import ZoneInfo
 
@@ -39,101 +38,105 @@ def obter_previous(contrato):
 
     print(f"Buscando {contrato}...")
 
-    max_tentativas = 3
+    try:
 
-    for tentativa in range(1, max_tentativas + 1):
-
-        try:
-
-            r = requests.get(
-                url,
-                headers=headers,
-                timeout=15
-            )
-
-        except requests.RequestException as erro:
-
-            print(
-                f"Erro de conexão ao buscar {contrato}: {erro}"
-            )
-
-            return None
-
-        print(
-            f"Status {contrato}: "
-            f"{r.status_code} "
-            f"(tentativa {tentativa}/{max_tentativas})"
+        r = requests.get(
+            url,
+            headers=headers,
+            timeout=15
         )
 
-        # =========================
-        # STATUS 202
-        # =========================
+    except requests.RequestException as erro:
 
-        if r.status_code == 202:
+        print(
+            f"Erro de conexão ao buscar {contrato}: {erro}"
+        )
 
-            if tentativa < max_tentativas:
+        return None
 
-                print(
-                    f"{contrato} retornou 202. "
-                    f"Aguardando 3 segundos para tentar novamente..."
-                )
+    print(f"Status {contrato}: {r.status_code}")
 
-                time.sleep(3)
+    # =========================
+    # DIAGNÓSTICO DO STATUS 202
+    # =========================
 
-                continue
+    if r.status_code == 202:
 
-            else:
+        print(
+            f"\n{contrato} retornou HTTP 202."
+        )
 
-                print(
-                    f"{contrato} continuou retornando 202 "
-                    f"após {max_tentativas} tentativas."
-                )
+        print(
+            "Content-Type:",
+            r.headers.get("Content-Type")
+        )
 
-                return None
+        print(
+            "Location:",
+            r.headers.get("Location")
+        )
 
-        # =========================
-        # CONTRATO NÃO DISPONÍVEL
-        # =========================
+        print(
+            "Content-Length:",
+            r.headers.get("Content-Length")
+        )
 
-        if r.status_code == 404:
+        print(
+            "Tamanho da resposta:",
+            len(r.text)
+        )
 
-            print(
-                f"{contrato} não está disponível no Barchart."
-            )
+        print(
+            "\nInício da resposta:"
+        )
 
-            return None
+        print(
+            r.text[:500]
+        )
 
-        # =========================
-        # ERRO DO SERVIDOR
-        # =========================
+        print(
+            "\n==============================\n"
+        )
 
-        if r.status_code >= 500:
+        return None
 
-            print(
-                f"Erro do servidor Barchart para {contrato}: "
-                f"{r.status_code}"
-            )
+    # =========================
+    # CONTRATO NÃO DISPONÍVEL
+    # =========================
 
-            return None
+    if r.status_code == 404:
 
-        # =========================
-        # OUTROS STATUS HTTP
-        # =========================
+        print(
+            f"{contrato} não está disponível no Barchart."
+        )
 
-        if r.status_code != 200:
+        return None
 
-            print(
-                f"Status inesperado para {contrato}: "
-                f"{r.status_code}"
-            )
+    # =========================
+    # ERRO DO SERVIDOR
+    # =========================
 
-            return None
+    if r.status_code >= 500:
 
-        # =========================
-        # STATUS 200
-        # =========================
+        print(
+            f"Erro do servidor Barchart para {contrato}: "
+            f"{r.status_code}"
+        )
 
-        break
+        return None
+
+    # =========================
+    # OUTROS STATUS HTTP
+    # =========================
+
+    if r.status_code != 200:
+
+        print(
+            f"Status inesperado para {contrato}: "
+            f"{r.status_code}"
+        )
+
+        return None
 
     # =========================
     # LOCALIZAR JSON
