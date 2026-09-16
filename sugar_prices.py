@@ -1,6 +1,7 @@
 import requests
 import json
 import pandas as pd
+import time
 from datetime import datetime
 from zoneinfo import ZoneInfo
 
@@ -38,61 +39,101 @@ def obter_previous(contrato):
 
     print(f"Buscando {contrato}...")
 
-    try:
+    max_tentativas = 3
 
-        r = requests.get(
-            url,
-            headers=headers,
-            timeout=15
-        )
+    for tentativa in range(1, max_tentativas + 1):
 
-    except requests.RequestException as erro:
+        try:
 
-        print(
-            f"Erro de conexão ao buscar {contrato}: {erro}"
-        )
+            r = requests.get(
+                url,
+                headers=headers,
+                timeout=15
+            )
 
-        return None
+        except requests.RequestException as erro:
 
-    print(f"Status {contrato}: {r.status_code}")
+            print(
+                f"Erro de conexão ao buscar {contrato}: {erro}"
+            )
 
-    # =========================
-    # CONTRATO NÃO DISPONÍVEL
-    # =========================
-
-    if r.status_code == 404:
+            return None
 
         print(
-            f"{contrato} não está disponível no Barchart."
+            f"Status {contrato}: "
+            f"{r.status_code} "
+            f"(tentativa {tentativa}/{max_tentativas})"
         )
 
-        return None
+        # =========================
+        # STATUS 202
+        # =========================
 
-    # =========================
-    # ERRO DO SERVIDOR
-    # =========================
+        if r.status_code == 202:
 
-    if r.status_code >= 500:
+            if tentativa < max_tentativas:
 
-        print(
-            f"Erro do servidor Barchart para {contrato}: "
-            f"{r.status_code}"
-        )
+                print(
+                    f"{contrato} retornou 202. "
+                    f"Aguardando 3 segundos para tentar novamente..."
+                )
 
-        return None
+                time.sleep(3)
 
-    # =========================
-    # OUTROS STATUS HTTP
-    # =========================
+                continue
 
-    if r.status_code != 200:
+            else:
 
-        print(
-            f"Status inesperado para {contrato}: "
-            f"{r.status_code}"
-        )
+                print(
+                    f"{contrato} continuou retornando 202 "
+                    f"após {max_tentativas} tentativas."
+                )
 
-        return None
+                return None
+
+        # =========================
+        # CONTRATO NÃO DISPONÍVEL
+        # =========================
+
+        if r.status_code == 404:
+
+            print(
+                f"{contrato} não está disponível no Barchart."
+            )
+
+            return None
+
+        # =========================
+        # ERRO DO SERVIDOR
+        # =========================
+
+        if r.status_code >= 500:
+
+            print(
+                f"Erro do servidor Barchart para {contrato}: "
+                f"{r.status_code}"
+            )
+
+            return None
+
+        # =========================
+        # OUTROS STATUS HTTP
+        # =========================
+
+        if r.status_code != 200:
+
+            print(
+                f"Status inesperado para {contrato}: "
+                f"{r.status_code}"
+            )
+
+            return None
+
+        # =========================
+        # STATUS 200
+        # =========================
+
+        break
 
     # =========================
     # LOCALIZAR JSON
@@ -240,10 +281,12 @@ print("\n==============================")
 print("VALIDAÇÃO DA COLETA")
 print("==============================")
 
+
 print(
     f"\nContratos configurados: "
     f"{len(contratos)}"
 )
+
 
 print(
     f"Contratos coletados: "
@@ -289,6 +332,7 @@ df = pd.DataFrame(resultado)
 print("\n==============================")
 print("DATAFRAME PARA O EXCEL")
 print("==============================\n")
+
 
 print(
     df.to_string(index=False)
@@ -349,6 +393,7 @@ historico.to_csv(
     index=False
 )
 
+
 print(
     "\nHistórico atualizado com sucesso."
 )
@@ -362,6 +407,7 @@ df.to_csv(
     "sugar_prices.csv",
     index=False
 )
+
 
 print(
     "\nArquivo sugar_prices.csv "
